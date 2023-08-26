@@ -50,7 +50,6 @@ make_container :: proc(name: string) -> ^Eh {
     eh.handler = container_handler
     eh.state = .idle
     eh.kind = "container"
-    fmt.printf ("make container %v\n", eh)
     return eh
 }
 
@@ -67,8 +66,7 @@ make_leaf_with_no_instance_data :: proc(name: string, handler: proc(^Eh, Message
     eh.name = name
     eh.handler = handler
     eh.state = .idle
-    eh.kind = "leaf w/o instance data"
-    fmt.printf ("make leaf w/o data %v\n", eh)
+    eh.kind = "leaf w/o data"
     return eh
 }
 
@@ -88,7 +86,6 @@ make_leaf_with_data :: proc(name: string, data: ^$Data, handler: proc(^Eh, Messa
     eh.instance_data = data
     eh.state = .idle
     eh.kind = "leaf"
-    fmt.printf ("make leaf %v\n", eh)
     return eh
 }
 
@@ -121,7 +118,6 @@ output_list :: proc(eh: ^Eh, allocator := context.allocator) -> []Message {
 
 // The default handler for container components.
 container_handler :: proc(eh: ^Eh, message: Message) {
-    fmt.printf ("container handler %v %v %v\n", eh.name, message.port, message.datum)
     route(eh, nil, message)
     for any_child_ready(eh) {
         step_children(eh)
@@ -246,7 +242,6 @@ step_children :: proc(container: ^Eh) {
         for child.output.len > 0 {
             msg, _ = fifo_pop(&child.output)
             log.debugf("OUTPUT 0x%p %s/%s(%s)", child, container.name, child.name, msg.port)
-	    fmt.printf ("step child\n")
             route(container, child, msg)
             destroy_message(msg)
         }
@@ -263,7 +258,6 @@ tick :: proc (eh: ^Eh) {
 // Routes a single message to all matching destinations, according to
 // the container's connection network.
 route :: proc(container: ^Eh, from: ^Eh, message: Message) {
-    fmt.printf ("begin routing\n")
     was_sent := false // for checking that output went somewhere (at least during bootstrap)
     if message.port == "." {
 	for child in container.children {
@@ -284,7 +278,6 @@ route :: proc(container: ^Eh, from: ^Eh, message: Message) {
             }
 	}
     }
-    fmt.printf ("was sent %v %v %v %v\n", was_sent, from.name, message.port, message.datum)
     fmt.assertf (was_sent, "\n\n!!! message from %v dropped on floor: %v %v\n\n", from.name, message.port, message.datum)
 }
 

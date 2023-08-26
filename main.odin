@@ -53,8 +53,6 @@ main :: proc() {
 
     regstry := reg.make_component_registry(leaves[:], diagram_source_file)
 
-    reg.dump_registry (regstry)
-    
     // get entrypoint container
     main_container, ok := reg.get_component_instance(regstry, main_container_name)
     fmt.assertf(
@@ -72,9 +70,6 @@ main :: proc() {
 
 run :: proc (main_container : ^zd.Eh) {
     // 1. inject a test message, observe the output
-    fmt.printf ("run 1\n")
     main_container.handler(main_container, zd.make_message("c", 'A'))
-    fmt.printf ("run 2\n")
     main_container.handler(main_container, zd.make_message("c", '⊥'))
-    fmt.printf ("run 3\n")
 }

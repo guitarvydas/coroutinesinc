@@ -56,7 +56,6 @@ get_component_instance :: proc(reg: Component_Registry, name: string) -> (instan
     initializer: Initializer
     initializer, ok = reg.initializers[name]
     if ok {
-	fmt.printf ("\ngci %v\n\n", initializer)
         switch init in initializer {
         case Leaf_Initializer:
             instance = init.init(name)
