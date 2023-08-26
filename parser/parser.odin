@@ -41,6 +41,7 @@ instantiate :: proc(name: string) -> ^zd.Eh {
 }
 
 handler :: proc(eh: ^zd.Eh,  msg: zd.Message, inst: ^Parser_Instance_Data) {
+    fmt.printf ("parser %v %v\n", msg.port, msg.datum.(rune))
     switch (State (eh)) {
     case .wait_for_character:
         switch msg.port {
@@ -67,7 +68,7 @@ stringify :: proc (c : rune) -> string {
 }
 
 sappend :: proc (s : string, c : rune) -> string {
-    r := fmt.aprintf ("%s%c", c)
+    r := fmt.aprintf ("%s%c", s, c)
     return r
 }
 

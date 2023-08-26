@@ -45,6 +45,7 @@ handler :: proc(eh: ^zd.Eh,  msg: zd.Message, inst: ^Decompress_Instance_Data) {
         switch msg.port {
         case "c":
 	    if (c == '⊥') {
+		zd.send (eh, "out", c)
 	    } else if c == 'ω' {
 		inst.Len = cast(int)c
 		Next (eh, .wait_for_len)
