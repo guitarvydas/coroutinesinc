@@ -41,13 +41,13 @@ main :: proc() {
     leaf.collect_process_leaves(diagram_source_file, &leaves)
 
     // export native leaves
-    append(&leaves, reg.Leaf_Instantiator {
+    reg.append_leaf (&leaves, reg.Leaf_Instantiator {
         name = "stdout",
         init = leaf.stdout_instantiate,
     })
 
-    append (&leaves, reg.Leaf_Instantiator { name = "decompress", init = decompress.instantiate })
-    append (&leaves, reg.Leaf_Instantiator { name = "parser", init = parser.instantiate })
+    reg.append_leaf (&leaves, reg.Leaf_Instantiator { name = "decompress", init = decompress.instantiate })
+    reg.append_leaf (&leaves, reg.Leaf_Instantiator { name = "parser", init = parser.instantiate })
 
     user.components (&leaves)
 

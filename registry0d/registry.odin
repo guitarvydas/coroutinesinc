@@ -34,6 +34,7 @@ make_component_registry :: proc(leaves: []Leaf_Initializer, container_xml: strin
     reg: Component_Registry
 
     for leaf_init in leaves {
+	fmt.assertf (!(leaf_init.name in reg.initializers), "Leaf \"%v\" already declared", leaf_init.name)
         reg.initializers[leaf_init.name] = leaf_init
     }
 
@@ -44,6 +45,7 @@ make_component_registry :: proc(leaves: []Leaf_Initializer, container_xml: strin
         container_init := Container_Initializer {
             decl = decl,
         }
+	fmt.assertf (!(decl.name in reg.initializers), "component \"%v\" already declared", decl.name)
         reg.initializers[decl.name] = container_init
     }
 
@@ -183,6 +185,9 @@ container_initializer :: proc(reg: Component_Registry, decl: syntax.Container_De
     return container
 }
 
+append_leaf :: proc (template_map: ^[dynamic]Leaf_Instantiator, template: Leaf_Instantiator) {
+    append (template_map, template)
+}
 
 dump_registry:: proc (reg : Component_Registry) {
   fmt.println ()
