@@ -12,11 +12,11 @@ import "../process"
 import "../syntax"
 import zd "../0d"
 
-Decompress_States :: enum { wait_for_character, wait_for_len }
+Decompress_States :: enum { wait_for_character, wait_for_len, wait_for_repeat_character }
 
 Decompress_Instance_Data :: struct {
     state : Decompress_States,
-    Len : int
+    Len : uint
 }
 
 Next :: proc (eh : ^zd.Eh, next_state : Decompress_States){
@@ -44,17 +44,24 @@ handler :: proc(eh: ^zd.Eh,  msg: zd.Message, inst: ^Decompress_Instance_Data) {
     case .wait_for_character:
         switch msg.port {
         case "c":
-	    if (c == '⊥') {
-		zd.send (eh, "out", c)
-	    } else if c == 'ω' {
-		inst.Len = cast(int)c
+	    switch {
+	    case c == 'ω':
 		Next (eh, .wait_for_len)
-	    } else {
+	    case c == '⊥':
+		zd.send (eh, "out", '⊥')
+	    case c != '⊥' && c != 'ω':
 		zd.send (eh, "out", c)
 	    }
         }
 
     case .wait_for_len:
+        switch msg.port {
+        case "c":
+	    inst.Len = cast(uint)c
+	    Next (eh, .wait_for_repeat_character)
+	}
+
+    case .wait_for_repeat_character:
         switch msg.port {
         case "c":
 	    for ; inst.Len > 0 ; inst.Len -= 1 {
