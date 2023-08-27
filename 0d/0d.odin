@@ -148,21 +148,21 @@ fifo_is_empty :: proc(fifo: FIFO) -> bool {
 
 FIFO_Iterator :: struct {
     q:   ^FIFO,
-    idx: int,
+    idx: uint,
 }
 
 make_fifo_iterator :: proc(q: ^FIFO) -> FIFO_Iterator {
     return {q, 0}
 }
 
-fifo_iterate :: proc(iter: ^FIFO_Iterator) -> (item: Message, idx: int, ok: bool) {
+fifo_iterate :: proc(iter: ^FIFO_Iterator) -> (item: Message, idx: uint, ok: bool) {
     if iter.q.len == 0 {
         ok = false
         return
     }
 
     i := (uint(iter.idx)+iter.q.offset) % len(iter.q.data)
-    if i < iter.q.len {
+    if iter.idx < iter.q.len {
         ok = true
         idx = iter.idx
         iter.idx += 1
