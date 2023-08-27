@@ -41,29 +41,49 @@ instantiate :: proc(name: string) -> ^zd.Eh {
 }
 
 handler :: proc(eh: ^zd.Eh,  msg: zd.Message, inst: ^Parser_Instance_Data) {
-    fmt.printf ("parser %v %v\n", msg.port, msg.datum.(rune))
     switch (State (eh)) {
     case .wait_for_character:
         switch msg.port {
         case "c":
 	    c := msg.datum.(rune)
-	    if (isalpha (c)) {
+	    switch {
+	    case isalpha (c):
 		inst.buffer = sappend (inst.buffer, c)
-	    } else if (c == '⊥') && len (inst.buffer) > 0  {
-		zd.send (eh, "token", Parser_Tags.word)
-		zd.send (eh, "strout", inst.buffer)
-	    } else {
-		zd.send (eh, "token", Parser_Tags.word)
-		zd.send (eh, "strout", inst.buffer)
-		zd.send (eh, "token", Parser_Tags.punct)
-		zd.send (eh, "strout", stringify (c))
+	    case (c != '⊥') && !isalpha (c):
+		send_word (eh, inst)
+		send_punct (eh, inst, c)
+		clear_buffer (eh, inst)
+	    case (c == '⊥') && len (inst.buffer) > 0:
+		send_word (eh, inst)
+		clear_buffer (eh, inst)
+	    case (c == '⊥') && len (inst.buffer) == 0:
+		clear_buffer (eh, inst)
 	    }
 	}
     }
 }
 
-stringify :: proc (c : rune) -> string {
+send_word :: proc (eh : ^zd.Eh, inst : ^Parser_Instance_Data) {
+    zd.send (eh, "token", Parser_Tags.word)
+    zd.send (eh, "strout", inst.buffer)
+}
+
+send_punct :: proc (eh : ^zd.Eh, inst : ^Parser_Instance_Data, c : rune) {
+    zd.send (eh, "token", Parser_Tags.punct)
+    zd.send (eh, "strout", stringify (c))
+}
+
+clear_buffer :: proc (eh : ^zd.Eh, inst : ^Parser_Instance_Data) {
+    inst.buffer = ""
+}
+
+buggy_stringify :: proc (c : rune) -> string {
     s := sappend ("", c)
+    return s
+}
+
+stringify :: proc (c : rune) -> string {
+    s := fmt.aprintf ("%c", c)
     return s
 }
 

@@ -70,6 +70,13 @@ main :: proc() {
 
 run :: proc (main_container : ^zd.Eh) {
     // 1. inject a test message, observe the output
-    main_container.handler(main_container, zd.make_message("c", 'A'))
+    main_container.handler(main_container, zd.make_message("c", 'a'))
+    main_container.handler(main_container, zd.make_message("c", 'b'))
+    main_container.handler(main_container, zd.make_message("c", 'c'))
+    main_container.handler(main_container, zd.make_message("c", '.'))
+    main_container.handler(main_container, zd.make_message("c", 'd'))
+    main_container.handler(main_container, zd.make_message("c", 'e'))
+    main_container.handler(main_container, zd.make_message("c", 'f'))
+    main_container.handler(main_container, zd.make_message("c", '!'))
     main_container.handler(main_container, zd.make_message("c", '⊥'))
 }
